@@ -20,7 +20,6 @@ public interface UpiInterface {
 
     ArrayList<ValidationMessage> validate(boolean strict, ArrayList<ValidationRuleInterface> ruleSet);
 
-    /* Special Getter */
     boolean isValid(boolean strict, ArrayList<ValidationRuleInterface> ruleSet);
 
     boolean isValid(boolean strict);
@@ -69,9 +68,6 @@ public interface UpiInterface {
 
     void setSubProperty(String subProperty);
 
-    @Override
-    String toString();
-
     String getUndefinedCountryCode();
 
     void setUndefinedCountryCode(String undefinedCountryCode);
@@ -79,4 +75,6 @@ public interface UpiInterface {
     ArrayList<ValidationRuleInterface> getValidationRules();
 
     void setValidationRules(ArrayList<ValidationRuleInterface> validationRules);
+
+    void clear();
 }

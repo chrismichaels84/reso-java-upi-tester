@@ -10,6 +10,9 @@ import org.reso.upi.validation.rules.ResoValidPropertyTypeCodeRule;
 
 import java.util.ArrayList;
 
+/**
+ * Base UPI class that implements and UpiInterfaces
+ */
 public class Upi implements UpiInterface {
 
     private String upiText;
@@ -30,24 +33,17 @@ public class Upi implements UpiInterface {
 
 
     /* Constructors */
-
     /**
-     * Creates an Empty UPI
+     * Creates an Empty UPI instance
      */
     public Upi() {
-        ArrayList<ValidationRuleInterface> rules = new ArrayList<ValidationRuleInterface>();
-
-        rules.add(new ResoAllPiecesRequiredRule());
-        rules.add(new ResoValidCountryCodeRule());
-        rules.add(new ResoValidPropertyTypeCodeRule());
-
-        this.setValidationRules(rules);
+        this.setValidationRules(getDefaultValidationRules());
     }
 
     /**
-     * Parse a UPI on construction
+     * Parse a UPI text on construction, but does not validate
      *
-     * @param upiText
+     * @param upiText valid upi text
      */
     public Upi(String upiText) throws MalformedUpiTextException {
         this();
@@ -57,7 +53,8 @@ public class Upi implements UpiInterface {
     /**
      * Parse a UPI on construction
      *
-     * @param upiText
+     * @param upiText     valid upi text
+     * @param description human readable description
      */
     public Upi(String upiText, String description) throws MalformedUpiTextException {
         this(upiText);
@@ -67,13 +64,13 @@ public class Upi implements UpiInterface {
     /**
      * Give all the parameters, including description
      *
-     * @param countryCode
-     * @param subCountryCode
-     * @param subCountyCode
-     * @param propertyId
-     * @param propertyTypeCode
-     * @param subProperty
-     * @param description
+     * @param countryCode      CountryCode enumeration
+     * @param subCountryCode   sub country code
+     * @param subCountyCode    Sub county code
+     * @param propertyId       Property identifier
+     * @param propertyTypeCode Type of property enum
+     * @param subProperty      Individual property unit number, etc
+     * @param description      human readable description
      */
     public Upi(
             CountryCode countryCode,
@@ -98,12 +95,12 @@ public class Upi implements UpiInterface {
     /**
      * Give all the parameters EXCEPT description
      *
-     * @param countryCode
-     * @param subCountryCode
-     * @param subCountyCode
-     * @param propertyId
-     * @param propertyTypeCode
-     * @param subProperty
+     * @param countryCode      CountryCode enumeration
+     * @param subCountryCode   sub country code
+     * @param subCountyCode    Sub county code
+     * @param propertyId       Property identifier
+     * @param propertyTypeCode Type of property enum
+     * @param subProperty      Individual property unit number, etc
      */
     public Upi(
             CountryCode countryCode,
@@ -118,12 +115,13 @@ public class Upi implements UpiInterface {
 
 
     /* Processing Methods */
+
     /**
      * Will build a UPI from the piece, if it has all the pieces.
      * Validates as non-strict. Just makes sure it has what it needs.
      *
-     * @return
-     * @throws MalformedUpiTextException
+     * @return Valid upi string
+     * @throws MalformedUpiTextException if upi text is incomplete
      */
     public String toUpi() throws MalformedUpiTextException {
         this.throwExceptionIfIncompleteUpi();
@@ -147,24 +145,12 @@ public class Upi implements UpiInterface {
                 this.subProperty;
     }
 
-    private void throwExceptionIfIncompleteUpi() throws MalformedUpiTextException {
-        // First, we need all the pieces in order to create a UPI Text
-        ResoAllPiecesRequiredRule rule = new ResoAllPiecesRequiredRule();
-        ArrayList<ValidationMessage> errors = rule.validate(this, false); // this will give us any missing pieces
-
-        if (errors.size() > 0) {
-            throw new MalformedUpiTextException(errors);
-        }
-    }
-
     /**
      * Hydrates a UPI object with a description, if complete upi is given
-     * <p>
      * If UPI is incomplete, returns false.
      *
      * @param upiText     Hopefully complete UPI `US-36061-N-010237502R1-S-113`
      * @param description Human readable description
-     * @return true for success, false for failure
      */
     public void parseUpi(String upiText, String description) throws MalformedUpiTextException {
         this.parseUpi(upiText);
@@ -173,11 +159,9 @@ public class Upi implements UpiInterface {
 
     /**
      * Hydrates a UPI object with no description, if complete upi is given
-     * <p>
      * If UPI is incomplete, returns false.
      *
      * @param upiText Hopefully complete UPI `US-36061-N-010237502R1-S-113`
-     * @return true for success, false for failure
      */
     public void parseUpi(String upiText) throws MalformedUpiTextException {
         String[] upiPieces = upiText.split("-");
@@ -201,14 +185,29 @@ public class Upi implements UpiInterface {
         this.setSubProperty(upiPieces[5]);
     }
 
+    /**
+     * Validate a built UPI instance against the default rules in non-strict mode
+     *
+     * @return the validation messages arraylist
+     */
     public ArrayList<ValidationMessage> validate() {
         return this.validate(false);
     }
 
+    /**
+     * Validate a built UPI instance against the default rules
+     *
+     * @return the validation messages arraylist
+     */
     public ArrayList<ValidationMessage> validate(boolean strict) {
         return this.validate(strict, this.getValidationRules());
     }
 
+    /**
+     * Validate a built UPI instance against a given ruleset
+     *
+     * @return the validation messages arraylist
+     */
     public ArrayList<ValidationMessage> validate(boolean strict, ArrayList<ValidationRuleInterface> ruleSet) {
         ArrayList<ValidationMessage> errors = new ArrayList<ValidationMessage>();
 
@@ -226,15 +225,27 @@ public class Upi implements UpiInterface {
 
 
     /* Special Getter */
+
+    /**
+     * Validates the current instance and returns true or false
+     */
     public boolean isValid(boolean strict, ArrayList<ValidationRuleInterface> ruleSet) {
         this.validate(strict, ruleSet);
         return this.valid;
     }
 
+    /**
+     * Validates the current instance and returns true or false
+     * given strict mode
+     */
     public boolean isValid(boolean strict) {
         return this.isValid(strict, this.getValidationRules());
     }
 
+    /**
+     * Validates the current instance and returns true or false
+     * default rule set in non-strict mode
+     */
     public boolean isValid() {
         return this.isValid(false);
     }
@@ -278,42 +289,37 @@ public class Upi implements UpiInterface {
     }
 
     /**
-     * @return
+     * Does not validate, just returns already validated messages (or null)
+     *
+     * @return the current vaidation messages
      */
     public ArrayList<ValidationMessage> getValidationMessages() {
         return this.validationMessages;
     }
 
     /**
-     * @param validationMessages
+     * @param validationMessages Validation message
      */
     private void setValidationMessages(ArrayList<ValidationMessage> validationMessages) {
         this.validationMessages = validationMessages;
     }
 
     /**
-     * @return
+     * @return country name
      */
     public String getCountryName() {
         return this.getCountryCode().getName();
     }
 
     /**
-     * @return
+     * @return country code
      */
     public CountryCode getCountryCode() {
         return this.countryCode;
     }
 
     /**
-     * @param countryCode
-     */
-    public void setCountryCode(CountryCode countryCode) {
-        this.countryCode = countryCode;
-    }
-
-    /**
-     * @param countryCode
+     * @param countryCode country code
      */
     public void setCountryCode(String countryCode) {
         CountryCode enumCode = CountryCode.getByCodeIgnoreCase(countryCode);
@@ -327,97 +333,169 @@ public class Upi implements UpiInterface {
     }
 
     /**
-     * @return
+     * @param countryCode country code
+     */
+    public void setCountryCode(CountryCode countryCode) {
+        this.countryCode = countryCode;
+    }
+
+    /**
+     * @return sub country code
      */
     public String getSubCountryCode() {
         return this.subCountryCode;
     }
 
     /**
-     * @param subCountryCode
+     * @param subCountryCode sub country code
      */
     public void setSubCountryCode(String subCountryCode) {
         this.subCountryCode = subCountryCode;
     }
 
     /**
-     * @return
+     * @return sub county code
      */
     public String getSubCountyCode() {
         return this.subCountyCode;
     }
 
     /**
-     * @param subCountyCode
+     * @param subCountyCode sub county code
      */
     public void setSubCountyCode(String subCountyCode) {
         this.subCountyCode = subCountyCode;
     }
 
     /**
-     * @return
+     * @return property id
      */
     public String getPropertyId() {
         return this.propertyId;
     }
 
     /**
-     * @param propertyId
+     * @param propertyId property id
      */
     public void setPropertyId(String propertyId) {
         this.propertyId = propertyId;
     }
 
     /**
-     * @return
+     * @return property type code
      */
     public PropertyTypeCode getPropertyTypeCode() {
         return this.propertyTypeCode;
     }
 
-    public void setPropertyTypeCode(PropertyTypeCode propertyType) {
-        this.propertyTypeCode = propertyType;
-    }
-
+    /**
+     * @param propertyTypeCode Code as a string
+     */
     public void setPropertyTypeCode(String propertyTypeCode) {
         this.setPropertyTypeCode(PropertyTypeCode.getByCodeIgnoreCase(propertyTypeCode));
     }
 
     /**
-     * @return
+     * @param propertyType Property type code enum
+     */
+    public void setPropertyTypeCode(PropertyTypeCode propertyType) {
+        this.propertyTypeCode = propertyType;
+    }
+
+    /**
+     * @return sub property
      */
     public String getSubProperty() {
         return subProperty;
     }
 
     /**
-     * @param subProperty
+     * @param subProperty sub property
      */
     public void setSubProperty(String subProperty) {
         this.subProperty = subProperty;
     }
 
+    /**
+     * @return Country code if country code is `UNDEFINED`
+     */
+    public String getUndefinedCountryCode() {
+        return undefinedCountryCode;
+    }
+
+    /**
+     * @param undefinedCountryCode Country code if country code is `UNDEFINED`
+     */
+    public void setUndefinedCountryCode(String undefinedCountryCode) {
+        this.undefinedCountryCode = undefinedCountryCode;
+    }
+
+    /**
+     * @return current validation rules
+     */
+    public ArrayList<ValidationRuleInterface> getValidationRules() {
+        return validationRules;
+    }
+
+    /**
+     * @param validationRules Current validation rules
+     */
+    public void setValidationRules(ArrayList<ValidationRuleInterface> validationRules) {
+        this.validationRules = validationRules;
+    }
+
+    /**
+     * Clears the current UPI object
+     */
+    public void clear() {
+        this.setValidationRules(getDefaultValidationRules());
+
+        this.countryCode = null;
+        this.subCountryCode = null;
+        this.subCountyCode = null;
+        this.propertyId = null;
+        this.propertyTypeCode = null;
+        this.subProperty = null;
+
+        this.valid = false;
+        this.upiText = null;
+        this.validationMessages = null;
+        this.undefinedCountryCode = null;
+    }
+
+    /**
+     * @return ArrayList of default rules
+     */
+    private ArrayList<ValidationRuleInterface> getDefaultValidationRules() {
+        ArrayList<ValidationRuleInterface> rules = new ArrayList<ValidationRuleInterface>();
+
+        rules.add(new ResoAllPiecesRequiredRule());
+        rules.add(new ResoValidCountryCodeRule());
+        rules.add(new ResoValidPropertyTypeCodeRule());
+        return rules;
+    }
+
+    /**
+     * @throws MalformedUpiTextException if the UPI Text is incomplete
+     */
+    private void throwExceptionIfIncompleteUpi() throws MalformedUpiTextException {
+        // First, we need all the pieces in order to create a UPI Text
+        ResoAllPiecesRequiredRule rule = new ResoAllPiecesRequiredRule();
+        ArrayList<ValidationMessage> errors = rule.validate(this, false); // this will give us any missing pieces
+
+        if (errors.size() > 0) {
+            throw new MalformedUpiTextException(errors);
+        }
+    }
+
+    /**
+     * @return the built UPI text
+     */
     public String toString() {
         try {
             return this.toUpi();
         } catch (MalformedUpiTextException e) {
             return "";
         }
-    }
-
-    public String getUndefinedCountryCode() {
-        return undefinedCountryCode;
-    }
-
-    public void setUndefinedCountryCode(String undefinedCountryCode) {
-        this.undefinedCountryCode = undefinedCountryCode;
-    }
-
-    public ArrayList<ValidationRuleInterface> getValidationRules() {
-        return validationRules;
-    }
-
-    public void setValidationRules(ArrayList<ValidationRuleInterface> validationRules) {
-        this.validationRules = validationRules;
     }
 }

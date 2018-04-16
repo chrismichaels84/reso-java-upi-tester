@@ -1,9 +1,12 @@
 import org.junit.jupiter.api.Test;
 import org.reso.upi.MalformedUpiTextException;
 import org.reso.upi.Upi;
+import org.reso.upi.UpiInterface;
 import org.reso.upi.country_code.CountryCode;
 import org.reso.upi.property_type_code.PropertyTypeCode;
 import org.reso.upi.validation.ValidationMessage;
+
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -45,6 +48,42 @@ class UpiTest {
 
             },
     };
+
+    /* Full Integration Script (from README) */
+    @Test
+    void givenUpi() throws MalformedUpiTextException {
+        UpiInterface upi = new Upi("US-04015-N-11022331-B-13");
+
+        assertEquals("US", upi.getCountryCode().toString());
+        assertEquals("04015", upi.getSubCountryCode());
+        assertEquals("N", upi.getSubCountyCode());
+        assertEquals("11022331", upi.getPropertyId());
+        assertEquals("B", upi.getPropertyTypeCode().toString());
+        assertEquals("13", upi.getSubProperty());
+
+        // You can also add an arbitrary description
+        upi.setDescription("This is some cool description");
+        assertEquals("This is some cool description", upi.getDescription());
+
+        // Or the full UPI Code again
+        assertEquals("US-04015-N-11022331-B-13", upi.getRawUpiText());
+
+        // Loose validation
+        ArrayList<ValidationMessage> errors = upi.validate();
+
+        assertTrue(errors.size() == 0);
+
+        ArrayList<ValidationMessage> strictErrors = upi.validate(true);
+
+        /* This should be one error */
+        assertTrue(strictErrors.size() == 1);
+        assertEquals(strictErrors.get(0).getCode(), 410);
+
+        assertTrue(upi.isValid());
+
+        // this should be false
+        assertFalse(upi.isValid(true));
+    }
 
     /* Parsing Tests (no validation) */
     @Test
