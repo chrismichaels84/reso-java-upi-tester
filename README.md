@@ -146,22 +146,19 @@ upi.setPropertyTypeCode(PropertyTypeCode.getNonStandard("XX", "Description"));
 In both cases, what you supply is what will be used for validations and concatenation.
 
 ## Tests
+There are some tests in the `tests` directory that should cover all the api features. 
+But, more and better tests are always welcome. 
+PR's encouraged.
 
 ## Contributing
-
-###
+Pull Requests are welcome and encouraged. Please issue PRs against `master` branch. New features will not be accepted with tests.
 
 ## Roadmap / ToDo
-- [ ] Full docblocks and cleaner interfaces
 - [ ] Complete Property Type Code Enumerations
 - [ ] Better Error Messages
-- [ ] Is it Alpha2 or Alpha3?
-- [ ] What is the correct order of the UPI pieces?
 - [ ] FIPS Helper
-- [ ] Tests for PropertyTypeCode and CountryCode
-- [ ] Clean up tests
+- [ ] Clean up and more complete tests
 - [ ] Complete Github package (contributing, etc)
-- [ ] Hand off to reso / publish on Maven
 
 ## Credits
 - Michael Wilson <mwilson at fbsdata.com>
