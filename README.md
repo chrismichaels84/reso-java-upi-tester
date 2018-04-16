@@ -162,5 +162,3 @@ Pull Requests are welcome and encouraged. Please issue PRs against `master` bran
 
 ## Credits
 - Michael Wilson <mwilson at fbsdata.com>
-
-## Licence
